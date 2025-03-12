@@ -5,7 +5,7 @@ import plotly.express as px
 import os
 
 # 🔹 Chemin du fichier Excel
-file_path = r"C:\Users\Victor\AIC_4301\fichier.xlsx"  # Assure-toi du bon chemin
+file_path = r"C:\Users\Aeven\Documents\4301B\Projet_vic\fichier.xlsx"  # Assure-toi du bon chemin
 
 # 🔹 Vérifier si le fichier existe
 if not os.path.exists(file_path):
@@ -33,10 +33,11 @@ app.layout = html.Div(children=[
     dcc.Slider(
         id='slider-heure',
         min=0,
-        max=len(df) - 1,
+        max=len(df) - 1	,
         step=1,
-        marks={i: str(df['Heures'][i]) for i in range(len(df))},  # Convertir les heures en str
+        marks={i: str(df['Heures'][i]) if i % max(1, len(df) // 10) == 0 else "" for i in range(len(df))},  # Convertir les heures en str
         value=0,  # Valeur initiale
+
     ),
 
     # 🔸 Graphique interactif
@@ -55,6 +56,7 @@ def update_graph(selected_hour_index):
     # Générer le graphique mis à jour
     fig = px.line(df_filtered, x="Heures", y=["PrévisionJ-1", "PrévisionJ", "Consommation"],
                   markers=True, title="Comparaison des Prévisions et de la Consommation")
+    
 
     return fig
 
