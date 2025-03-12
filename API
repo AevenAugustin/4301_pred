@@ -1,0 +1,18 @@
+from fastapi import FastAPI, UploadFile, File
+import pandas as pd
+from prophet import Prophet
+
+app = FastAPI()
+
+@app.post("/forecast/")
+async def forecast(file: UploadFile = File(...)):
+    df = pd.read_excel(file.file)
+    df = df.rename(columns={"date": "ds", "valeur": "y"})
+    
+    model = Prophet()
+    model.fit(df)
+
+    future = model.make_future_dataframe(periods=30)
+    forecast = model.predict(future)
+
+    return forecast[["ds", "yhat"]].to_dict(orient="records")
