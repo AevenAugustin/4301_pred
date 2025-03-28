@@ -33,8 +33,14 @@ def clean_csv(file_path='data2024.csv', output_path='data2024_nettoye.csv'):
     # Supprimer les lignes contenant "Journée" (elles sont maintenant dans la colonne 'Jour')
     df = df[~df['Heures'].astype(str).str.contains("Journée")]
     
-    # Supprimer les lignes avec des valeurs nulles ou vides
-    df = df.dropna()
+    # Créer une nouvelle colonne "DateTime" en combinant 'Jour' et 'Heures'
+    df['DateTime'] = pd.to_datetime(df['Jour'] + ' ' + df['Heures'], errors='coerce')
+    
+    # Supprimer les colonnes 'Jour' et 'Heures' après fusion
+    df = df.drop(columns=['Jour', 'Heures'])
+    
+    # Supprimer les lignes avec des valeurs nulles ou vides dans la colonne 'DateTime'
+    df = df.dropna(subset=['DateTime'])
     
     # Convertir les colonnes numériques en entiers
     df[['PrévisionJ-1', 'PrévisionJ', 'Consommation']] = df[['PrévisionJ-1', 'PrévisionJ', 'Consommation']].apply(pd.to_numeric, errors='coerce')
@@ -42,8 +48,8 @@ def clean_csv(file_path='data2024.csv', output_path='data2024_nettoye.csv'):
     # Supprimer les valeurs aberrantes (en supposant que les valeurs normales sont entre 10 000 et 100 000)
     df = df[(df['Consommation'] >= 10000) & (df['Consommation'] <= 100000)]
     
-    # Réorganiser les colonnes (optionnel)
-    df = df[['Jour', 'Heures', 'PrévisionJ-1', 'PrévisionJ', 'Consommation']]
+    # Réorganiser les colonnes
+    df = df[['DateTime', 'PrévisionJ-1', 'PrévisionJ', 'Consommation']]
     
     # Sauvegarder le fichier nettoyé
     df.to_csv(output_path, index=False, sep=';')
